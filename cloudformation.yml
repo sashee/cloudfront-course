@@ -4,11 +4,11 @@ Mappings:
     Frontend:
       owner: khaledosman
       repo: react-redux-realworld-example-app
-      tag: cd7d12ef4b6fb7715811320f687096d9916c8d80
+      tag: e9e398f1525ea31f688661dd11aaeab13efd26ca
     Backend:
-      owner: tanem
+      owner: sashee
       repo: express-bookshelf-realworld-example-app
-      tag: f8c6f36b0fa0b46c0f4fe3baad281dd80576b7e6
+      tag: f1c5a5715e422f6c3a6379f11e0f2089ca640ac2
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -248,6 +248,8 @@ Resources:
                 - cp -a /opt/frontend/${repo}-${tag}/build/. /var/www/html
                 - repo: !FindInMap [Code, Frontend, repo]
                   tag: !FindInMap [Code, Frontend, tag]
+            04_fix_permissions:
+              command: chmod -R +r /var/www/html
           services:
             sysvinit:
               httpd:
@@ -318,6 +320,113 @@ Resources:
             yum update -y aws-cfn-bootstrap
             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --configsets setup --region ${AWS::Region}
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        IPV6Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /
+        DefaultCacheBehavior:
+          Compress: true
+          TargetOriginId: frontend
+          DefaultTTL: 60
+          MinTTL: 60
+          MaxTTL: 60
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+          ViewerProtocolPolicy: "redirect-to-https"
+        CacheBehaviors:
+          - PathPattern: /api/tags
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            Compress: true
+            DefaultTTL: 60
+            MinTTL: 60
+            MaxTTL: 60
+            ForwardedValues:
+              Cookies:
+                Forward: none
+              QueryString: true
+          - PathPattern: /api/articles
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            Compress: true
+            DefaultTTL: 60
+            MinTTL: 60
+            MaxTTL: 60
+            ForwardedValues:
+              Cookies:
+                Forward: none
+              QueryString: true
+          - PathPattern: /api/*
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            Compress: true
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ForwardedValues:
+              Cookies:
+                Forward: all
+              QueryString: true
+              Headers:
+                - '*'
+          - PathPattern: /static/*
+            TargetOriginId: frontend
+            ViewerProtocolPolicy: https-only
+            Compress: true
+            DefaultTTL: 31536000
+            MinTTL: 31536000
+            MaxTTL: 31536000
+            ForwardedValues:
+              Cookies:
+                Forward: none
+              QueryString: false
+        Origins:
+          - Id: frontend
+            DomainName: !GetAtt Instance.PublicDnsName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+          - Id: api
+            DomainName: !GetAtt Instance.PublicDnsName
+            CustomOriginConfig:
+              HTTPPort: 3000
+              OriginProtocolPolicy: http-only
 Outputs:
   URL:
     Value: !Join ["", ["http://", !GetAtt Instance.PublicDnsName]]
+  CloudFrontURL:
+    Value: !GetAtt Distribution.DomainName
