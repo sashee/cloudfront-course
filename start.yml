@@ -91,7 +91,6 @@ Resources:
 #        From: 22
 #        To: 22
   # allow ephemeral ports for responses
-  # not strictly needed as the next entry enables *all* outbound traffic, but it's still a best practice
   InBoundResponsePortsNetworkAclEntry:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -102,7 +101,7 @@ Resources:
       Egress: false
       CidrBlock: 0.0.0.0/0
       PortRange:
-        From: 49152
+        From: 1024
         To: 65535
   # allow all outbound traffic
   OutBoundNetworkAclEntry:
