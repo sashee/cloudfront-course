@@ -278,7 +278,9 @@ Resources:
     Properties:
       InstanceType: "t2.micro"
       ImageId: "ami-047a51fa27710816e"
-      KeyName: "test"
+      # the key to use to ssh into the instance
+      # only for debugging
+      # KeyName: "test"
       NetworkInterfaces:
         - DeviceIndex: "0"
           AssociatePublicIpAddress: true
