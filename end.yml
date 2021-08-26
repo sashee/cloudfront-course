@@ -5,11 +5,11 @@ Mappings:
     Frontend:
       owner: khaledosman
       repo: react-redux-realworld-example-app
-      tag: e9e398f1525ea31f688661dd11aaeab13efd26ca
+      tag: c16fd53eaa7445027a9f548e0265f25bfafc46ef
     Backend:
-      owner: sashee
+      owner: tanem
       repo: express-bookshelf-realworld-example-app
-      tag: f1c5a5715e422f6c3a6379f11e0f2089ca640ac2
+      tag: 998de29552451f4d5491d59adab153f55e25f6a9
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -180,7 +180,7 @@ Resources:
               docker: []
           commands:
             01_install_docker_compose:
-              command: curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+              command: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
               test: docker-compose --version >/dev/null 2>&1; (( $? != 0 ))
           services:
             sysvinit:
