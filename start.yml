@@ -76,20 +76,19 @@ Resources:
       PortRange:
         From: 80
         To: 80
-# allow port 22 to SSH into the instance
-# only useful for debugging, so it's commented out
-#  InboundSSHNetworkAclEntry:
-#    Type: AWS::EC2::NetworkAclEntry
-#    Properties:
-#      NetworkAclId: !Ref NetworkAcl
-#      RuleNumber: 200
-#      Protocol: 6
-#      RuleAction: allow
-#      Egress: false
-#      CidrBlock: 0.0.0.0/0
-#      PortRange:
-#        From: 22
-#        To: 22
+  # allow port 22 to SSH into the instance
+  InboundSSHNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NetworkAcl
+      RuleNumber: 200
+      Protocol: 6
+      RuleAction: allow
+      Egress: false
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 22
+        To: 22
   # allow ephemeral ports for responses
   InBoundResponsePortsNetworkAclEntry:
     Type: AWS::EC2::NetworkAclEntry
@@ -138,10 +137,10 @@ Resources:
         ToPort: 80
         CidrIp: 0.0.0.0/0
       # ssh, only for debugging
-#      - IpProtocol: tcp
-#        FromPort: 22
-#        ToPort: 22
-#        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
       # allow all outbound
       - CidrIp: 0.0.0.0/0
@@ -277,9 +276,6 @@ Resources:
     Properties:
       InstanceType: "t2.micro"
       ImageId: "ami-047a51fa27710816e"
-      # the key to use to ssh into the instance
-      # only for debugging
-      # KeyName: "test"
       NetworkInterfaces:
         - DeviceIndex: "0"
           AssociatePublicIpAddress: true
@@ -296,3 +292,9 @@ Resources:
 Outputs:
   URL:
     Value: !Join ["", ["http://", !GetAtt Instance.PublicDnsName]]
+  FrontendHost:
+    Value: !GetAtt Instance.PublicDnsName
+  BackendHost:
+    Value: !GetAtt Instance.PublicDnsName
+  BackendPort:
+    Value: 3000
